@@ -1,0 +1,35 @@
+{
+        "family": "dealeron-gogocar-be-recommendation",
+        "containerDefinitions": [
+            {
+                "name": "gogocar-be-recommendation",
+                "image": "253593506993.dkr.ecr.us-east-1.amazonaws.com/gogocar-be-recommendation-dealeron:latest",
+                "cpu": 150,
+                "memory": 500,
+                "portMappings": [
+                    {
+                        "containerPort": 3017,
+                        "hostPort": 3017,
+                        "protocol": "tcp"
+                    }
+                ],
+                "essential": true,
+                "command": [],
+                "environment":  [
+        {
+          "name": "NODE_ENV",
+          "value": "dealeron1"
+        }
+      ],
+                "mountPoints": [],
+                "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                    "awslogs-group": "dealeron-gogocar-recommendation",
+                    "awslogs-region": "us-east-1"
+                }
+            }
+            }
+        ],
+        "volumes": []
+    }

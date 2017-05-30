@@ -1,0 +1,421 @@
+from django.shortcuts import render
+
+# Create your views here.
+import numpy as np
+import json
+import urllib2
+from scipy import stats
+from sklearn import linear_model
+from rest_framework import viewsets
+from rest_framework.response import Response
+from rest_framework.decorators import permission_classes
+from rest_framework import permissions
+from scipy.spatial.distance import mahalanobis
+import scipy as sp
+import pandas as pd
+import datetime
+from time import time
+from sklearn.metrics.pairwise import euclidean_distances
+from pandas import DataFrame
+from python_mysql_dbconfig import read_db_config
+from django.core import serializers
+import json
+from django.http import JsonResponse
+import json
+from django.http import HttpResponse
+import MySQLdb
+from pandas.io import sql
+
+
+from finalquerybuilder import buildQuery1
+
+
+@permission_classes((permissions.AllowAny,))
+class GoGoCarScore(viewsets.ViewSet):
+
+    def list(self, request):
+        increment_value = .10
+        Cartype = ""
+        if ("Cartype" in request.query_params):
+            Cartype = request.query_params['Cartype']
+        else:
+            return Response({'status': 'ERROR', 'error': 'Please\
+Enter a valid Cartype '})
+        Cartype = str(Cartype)
+        if ("Stateid" in request.query_params):
+            if not request.query_params['Stateid'].isdigit():
+                return Response({'status': 'ERROR', 'error': 'INVALID_\
+Stateid '})
+            else:
+                Stateid = request.query_params['Stateid']
+        else:
+            Stateid = 0
+        if ("Msrp" in request.query_params):
+            if not request.query_params['Msrp'].isdigit():
+                return Response({'status': 'ERROR', 'error': 'INVALID_Msrp'})
+            else:
+                Msrp = request.query_params['Msrp']
+        else:
+            Msrp = 0
+
+        # if  request.query_params['Stateid'].isdigit():
+        #   Stateid=request.query_params['Stateid']
+        # else:
+        #   Stateid=0
+
+        #   return Response({'status':'ERROR','error':'INVALID_Stateid'})
+      # except:
+            # return
+            # Response({'status':'ERROR','error':'NO_Stateid_SPECIFIED'})
+
+        # if ("Stateid" in request.query_params):
+          # Stateid=request.query_params['Stateid']
+     #  else:
+        # return Response({'status':'ERROR','error':'Please Enter a valid
+        # Stateid'})
+
+      # Stateid=request.query_params['Stateid']
+        # try:
+     #  if not request.query_params['Stateid'].isdigit():
+
+        #   return Response({'status':'ERROR','error':'INVALID_Stateid'})
+      # except:
+            # return
+            # Response({'status':'ERROR','error':'NO_Stateid_SPECIFIED'})
+
+      # if ("Msrp" in request.query_params):
+        #   Msrp=request.query_params['Msrp']
+      # else:
+         # return Response({'status':'ERROR','error':'Please Enter a valid
+         # Msrp'})
+
+        '''
+            try:
+               if not request.query_params['Msrp'].isdigit():
+                  return Response({'status':'ERROR','error':'INVALID_Msrp'})
+            except:
+                  return Response({'status':'ERROR','error':'NO_Msrp_SPECIFIED'})
+            
+            if request.query_params['Msrp'].isdigit():
+                 Msrp=request.query_params['Msrp']
+            else:
+                 Msrp=0  
+              
+            
+            
+            try:
+               if not request.query_params['Stateid'].isdigit():
+                  return Response({'status':'ERROR','error':'INVALID_Stateid'})
+               elif request.query_params['Stateid'].isdigit():
+                  Stateid=request.query_params['Stateid']
+               else:
+                 Stateid=0    
+            except:
+                  return Response({'status':'ERROR','error':'NO_Stateid_SPECIFIED'})
+            '''
+
+        if ("MarketSegment" in request.query_params):
+            MarketSegment = request.query_params['MarketSegment']
+        else:
+            MarketSegment = ""
+
+        if ("Gender" in request.query_params):
+            Gender = request.query_params['Gender']
+        else:
+            Gender = ""
+
+        # return Response({'status':'ERROR','error':'Please Enter a valid
+        # MarketSegment'})
+
+        # Gender=request.query_params['Gender']
+        # Gender=""
+
+      # try:
+        '''
+                       if ("MarketSegment" in request.query_params):  
+                                if not str("MarketSegment" in request.query_params):
+                                      print 'hai'
+                                      return Response({'status':'ERROR','error':'INVALID_MarketSegment'})
+                                   
+                                elif str("MarketSegment" in request.query_params):
+                                       print 'hai1'
+                                       MarketSegment=request.query_params['MarketSegment']
+                                       
+                                else:
+                                       MarketSegment=request.query_params['MarketSegment']
+                                       
+                        else:               
+
+            #except:       
+           #     return Response({'status':'ERROR','error':'Please Enter a valid Gender'}) 
+            
+
+            if request.query_params['Stateid'].isdigit():
+                Gender=request.query_params['Gender'] 
+            else:
+                 Gender=Gender  
+
+            
+            Gender=str(Gender)
+            #print Car_type
+            
+          
+            
+            MarketSegment=""
+
+               
+            if ("MarketSegment" in request.query_params):
+               MarketSegment=request.query_params['MarketSegment']   
+            else:
+                  MarketSegment=MarketSegment
+            #    return Response({'status':'ERROR','error':'Please Enter a valid MarketSegment'}) 
+            
+           # MarketSegment=str(MarketSegment)
+            #print Car_type
+            
+            try:   
+               if not str(request.query_params['MarketSegment']):
+                  return Response({'status':'ERROR','error':'INVALID_MarketSegment'})
+               
+               elif str(request.query_params['MarketSegment']):
+                   MarketSegment=request.query_params['MarketSegment']
+                   
+               else:
+                   MarketSegment=""
+                   
+            except:       
+                return Response({'status':'ERROR','error':'Please Enter a valid MarketSegment'}) 
+         
+            MarketSegment = MarketSegment
+            '''
+
+        MarketSegment = str(MarketSegment)
+        Gender = str(Gender)
+
+        # db = MySQLdb.connect(host="127.0.0.1",    # your host, usually localhost
+        #                    user="root",         # your username
+        #                     passwd="cloudera",  # your password
+        #                    db="gogo_car")
+
+        dict = read_db_config()
+
+        # db1 = MySQLdb.connect(host="52.33.60.130",    # your host, usually localhost
+        #                 user="root",         # your username
+        #                 passwd="redhat",  # your password
+        #                 db="gogo_car")
+
+        db = MySQLdb.connect(host=dict.get('host'),    # your host, usually localhost
+                             user=dict.get('user'),         # your username
+                             passwd=dict.get('password'),  # your password
+                             db=dict.get('database'))
+
+        # s='Sedan'
+
+        # a=1
+        # print Stateid
+
+        # 1st block
+        if Cartype and Msrp < 1:
+            try:
+                queryParams = {}
+                queryParams["cartype"] = Cartype
+                Query = buildQuery1(queryParams)
+                x1 = pd.read_sql("%s" % Query, db)
+                if x1.empty:
+                    return Response({'status': '404', 'error': 'The input doesnt\
+    contain any matching records please give another input'})
+                else:
+                    myJSON = x1.to_json(path_or_buf=None,
+                                        orient='records',
+                                        date_format='epoch',
+                                        double_precision=10,
+                                        force_ascii=True,
+                                        date_unit='ms',
+                                        default_handler=None)  # Attempt 1
+                    #myJSON =x1.reset_index().to_json(orient='records')
+                    myJSON = json.loads(myJSON)
+                    myJSON = {'TopScoring': myJSON}
+            except:
+                print "1st block"
+                return Response({'status':'404','error':"""Error occure in cartype
+            score calculation block """})
+                # print myJSON
+               # return Response(myJSON)
+
+            # except:
+           # return Response({'status':'404','error':'Error occure in cartype
+           # score calculation block '})
+
+            #stid=pd.read_sql("SELECT * FROM gogo_car.location where stateid= '%s'"% a, db)
+
+            # a = x1.to_json(path_or_buf = None, orient = 'records',
+            # date_format = 'epoch', double_precision = 10, force_ascii = True,
+            # date_unit = 'ms', default_handler = None) # Attempt 1
+        # 2 nd block
+        elif Cartype and Msrp > 1 and Stateid == 0 and MarketSegment == "" and Gender == "":
+            try:
+                queryParams = {}
+                queryParams["cartype"] = Cartype
+                queryParams["msrp"]=Msrp
+                Query = buildQuery2(queryParams)
+                x1 = pd.read_sql("%s" % Query, db)
+                if x1.empty:
+                    return Response({'status': '404', 'error': 'The input doesnt\
+    contain any matching records please give another input'})
+                else:
+                    myJSON = x1.to_json(path_or_buf=None,
+                                        orient='records',
+                                        date_format='epoch',
+                                        double_precision=10,
+                                        force_ascii=True,
+                                        date_unit='ms',
+                                        default_handler=None)  # Attempt 1
+                    #myJSON =x1.reset_index().to_json(orient='records')
+                    myJSON = json.loads(myJSON)
+                    myJSON = {'TopScoring': myJSON}
+            except:
+                print "1st block"
+                return Response({'status':'404','error':"""Error occure in cartype
+            score calculation block"""})
+
+
+
+            #x1='hai am second'
+            #x1 = pd.read_sql(
+                #"select car_type,score,type,msrp from Abs_Scr where type='%s' AND msrp < %s order by score Desc limit 3" % (Cartype, Msrp), db)
+
+            # a = x1.to_json(path_or_buf = None, orient = 'records',
+            # date_format = 'epoch', double_precision = 10, force_ascii = True,
+            # date_unit = 'ms', default_handler = None) # Attempt 1
+
+        # 3 rd block
+        elif Cartype and Msrp > 1 and MarketSegment and Stateid == 0 and Gender == "":
+            # x1='hai am third'
+
+            #x1=pd.read_sql("select car_type,score,type,marketSegment,studentRank,familyRank from Abs_Scr where marketSegment='Student' and type='Wagon' order by studentRank Asc limit 3"% text, db)
+
+            #x1=pd.read_sql("SELECT master_table2.Model1,master_table2.score,master_table2.type,segment.Segment,rank_data.StudentRank,rank_data.FamilyRank FROM master_table2 INNER JOIN rank_data ON master_table2.Model1 = rank_data.car_type INNER JOIN segment ON segment.car_type = master_table2.Model1 WHERE segment.Segment = 'Family' AND master_table2.type='Sedan'  order by rank_data.studentRank Asc limit 3")
+            #x1=pd.read_sql("SELECT master_table2.Model1,master_table2.score,master_table2.type,segment.Segment,rank_data.StudentRank,rank_data.FamilyRank FROM master_table2 INNER JOIN rank_data ON master_table2.Model1 = rank_data.car_type INNER JOIN segment ON segment.car_type = master_table2.Model1 WHERE segment.Segment = 'Family' AND master_table2.type='Sedan'  order by rank_data.studentRank Asc limit 3"%(text,Msrp), db)
+
+            x1 = pd.read_sql("SELECT master_table2.Model1,master_table2.score,master_table2.type,segment.Segment1,rank_data.StudentRank,rank_data.FamilyRank FROM master_table2 INNER JOIN rank_data ON master_table2.Model1 = rank_data.car_type INNER JOIN segment ON segment.car_type = master_table2.Model1 WHERE master_table2.Msrp < %s and TRIM(TRAILING char(13) FROM segment.segment1) = '%s' AND master_table2.type='%s' order by rank_data.studentRank Asc limit 3" % (
+                Msrp, MarketSegment, Cartype), db)
+            # a = x1.to_json(path_or_buf = None, orient = 'records',
+            # date_format = 'epoch', double_precision = 10, force_ascii = True,
+            # date_unit = 'ms', default_handler = None) # Attempt 1
+
+        # 4 th block
+        elif Cartype and Msrp > 1 and Gender and Stateid == 0 and MarketSegment == "":
+
+            x1 = pd.read_sql("SELECT master_table2.Model1,master_table2.type,master_table2.score FROM master_table2 join gender ON master_table2.Model1 = gender.car_type WHERE  master_table2.Msrp < %s and TRIM(TRAILING char(13) FROM sex) = '%s' AND master_table2.type='%s'" % (
+                Msrp, Gender, Cartype), db)
+
+            x1 = pd.read_sql("SELECT master_table2.Model1,master_table2.type,master_table2.score FROM master_table2 join gender ON master_table2.Model1 = gender.car_type WHERE  master_table2.Msrp < %s and TRIM(TRAILING char(13) FROM sex) = '%s' AND master_table2.type='%s'" % (
+                Msrp, Gender, Cartype), db)
+
+            #x1='hai am fourth'
+        # 5 th block
+        elif Cartype and Msrp > 1 and Stateid > 0 and MarketSegment == "" and Gender == "":
+
+            x1 = pd.read_sql(
+                "select car_type,score,type,msrp from master_table2 where type='%s' AND msrp < %s order by score Desc limit 3" % (Cartype, Msrp), db)
+            x2 = pd.read_sql(
+                "select * from loaction where stateid = '%s'" % Stateid, db)
+
+            car = x2[(x2['stateid'] == Stateid)].values[0][1]
+            x1['score'].loc[x1['model1'] == car] = x1['score'] + \
+                x1['score'].loc[x1['model1'] == car] * increment_value
+            x1['score']
+
+            #   a=row1['score']
+
+            '''
+                if not x1.empty and not x2.empty:
+                    x1=x1
+                elif not x1.empty and  x2.empty:
+                    x1=x1
+                elif  x1.empty and not x2.empty:    
+                    x1=x2
+                elif  x1.empty and x2.empty: 
+                     x1='there is no data from you search'
+            '''
+            x1 = 'hai am five'
+
+        # 6 th block
+        elif Cartype and Msrp > 1 and Stateid > 0 and MarketSegment and Gender:
+            x1 = 'hai am sixth'
+        # 7 th block
+        elif Cartype and Msrp > 1 and Stateid == 0 and MarketSegment and Gender:
+            x1 = 'hai am seventh'
+        # 8 th block
+        elif Cartype and Msrp > 1 and Stateid > 0 and MarketSegment and Gender == "":
+            x1 = 'hai am eigth'
+        # 9 nd block
+        elif Cartype and Msrp > 1 and Stateid > 0 and MarketSegment == "" and Gender:
+
+            x1 = 'hai am ninth'
+
+        else:
+
+            x1 = 'there is no data'
+
+        '''
+            query="select car_type,score,type,msrp from Abs_Scr where type='%s' AND msrp < 20000 order by score Desc limit 3"
+            
+            
+            
+            if Msrp <2000 and not Cartype:
+                #select car_type,score,type,msrp from Abs_Scr where type='Wagon' AND msrp between 20000 AND 40000 order by score Desc limit 3;
+                
+                x1=pd.read_sql("select car_type,score,type,msrp from Abs_Scr where type='%s' AND msrp < 20000 order by score Desc limit 3"% text, db)
+                
+            elif 20000 <= Msrp <= 40000:
+                
+                
+                x1=pd.read_sql("select car_type,score,type,msrp from Abs_Scr where type='%s' AND msrp between 20000 AND 40000 order by score Desc limit 3"% text, db)
+
+            elif Msrp >40000:
+                
+                x1=pd.read_sql("select car_type,score,type,msrp from Abs_Scr where type='%s' AND msrp > 40000 order by score Desc limit 3"% text, db)
+
+            elif (result_active_pending==0 and result_closed!=0):
+                    
+                        val=result_closed
+                        finalObj={'Fair market value':val}
+                        print finalObj
+                    
+                    
+            else:
+                    
+                          finalObj={'The given data doesnt have fairmarket value : please Enter vaild data'}
+                    
+  
+            #select car_type,score,type,msrp from Abs_Scr where type='Wagon' AND msrp < 20000 order by score Desc limit 3;
+            #select car_type,score,type,msrp from Abs_Scr where type='Wagon' AND msrp between 20000 AND 40000 order by score Desc limit 3;
+            #select car_type,score,type,msrp from Abs_Scr where type='Wagon' AND msrp > 40000 order by score Desc limit 3;
+           
+           
+           
+            #select car_type,score,type,marketSegment,studentRank,familyRank from Abs_Scr where marketSegment='Student' and type='Wagon' order by studentRank Asc limit 3;
+
+
+            #select car_type,score,type,marketSegment,studentRank,familyRank from Abs_Scr where marketSegment='Family' and type='sedan' order by familyRank Asc limit 3;
+            
+            
+            #cus_sel=x1[(x1['car_type A']=="Accord") & (x1['type']=="Sedan")]
+            
+            
+            '''
+        # cus_sel=x1[(x1['type']=="Sedan")]
+
+        # car=stid[(stid['stateid']==a)].values[0][1]
+        # x1['Score']=x1['Score']+x1['Score'].loc[x1['Model1']==car]*.10
+
+        # a = x1.to_json(path_or_buf = None, orient = 'records', date_format = 'epoch', double_precision = 10, force_ascii = True, date_unit = 'ms', default_handler = None) # Attempt 1
+        #jsonObject = serializers.serialize('json', object, fields=('value', 'record_time'))
+        # myJSON=json.load(myJSON)
+      #myJSON = myJSON.decode('string_escape')
+        return Response(myJSON)
+
+        # return Response(serializers.serialize('json', myJSON))
+        # return HttpResponse(json.load(myJSON), content_type =
+        # "application/json")

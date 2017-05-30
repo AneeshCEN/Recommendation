@@ -1,0 +1,35 @@
+{
+        "family": "prod1-gogocar-be-recommendation",
+        "containerDefinitions": [
+            {
+                "name": "gogocar-be-recommendation",
+                "image": "253593506993.dkr.ecr.us-east-1.amazonaws.com/gogocar-be-recommendation-prod1:latest",
+                "cpu": 200,
+                "memory": 1024,
+                "portMappings": [
+                    {
+                        "containerPort": 3017,
+                        "hostPort": 3017,
+                        "protocol": "tcp"
+                    }
+                ],
+                "essential": true,
+                "command": [],
+                "environment":  [
+        {
+          "name": "NODE_ENV",
+          "value": "prod1"
+        }
+      ],
+                "mountPoints": [],
+                "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                    "awslogs-group": "prod1-gogocar-recommendation",
+                    "awslogs-region": "us-east-1"
+                }
+            }
+            }
+        ],
+        "volumes": []
+    }
