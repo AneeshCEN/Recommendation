@@ -1,1 +1,1 @@
-# ggc_recommendation
+# Recommendation
